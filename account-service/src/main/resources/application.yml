@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: account-service
+  config:
+    import: optional:configserver:http://localhost:8888
+
+server:
+  port: 8082
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+  info:
+    git:
+      mode: simple
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+logging:
+  level:
+    com.bank.accountservice: INFO
+    org.springframework.security: INFO
