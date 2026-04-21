@@ -1,0 +1,68 @@
+# Notification Service Configuration
+
+server:
+  port: 8085
+
+spring:
+  datasource:
+    url: jdbc:postgresql://${NOTIFICATION_DB_HOST:localhost}:${NOTIFICATION_DB_PORT:5432}/${NOTIFICATION_DB_NAME:notification_db}
+    username: ${NOTIFICATION_DB_USERNAME:postgres}
+    password: ${NOTIFICATION_DB_PASSWORD:notification_password}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 300000
+      connection-timeout: 20000
+      max-lifetime: 600000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${EUREKA_SERVER_HOST:localhost}:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+
+rabbitmq:
+  host: ${RABBITMQ_HOST:localhost}
+  port: ${RABBITMQ_PORT:5672}
+  username: ${RABBITMQ_USERNAME:guest}
+  password: ${RABBITMQ_PASSWORD:guest}
+  virtual-host: /
+  listener:
+    simple:
+      retry:
+        enabled: true
+        initial-interval: 1000
+        max-attempts: 3
+        max-interval: 10000
+        multiplier: 2.0
+
+notification:
+  email:
+    enabled: true
+    from-address: ${NOTIFICATION_EMAIL_FROM:noreply@bankingsystem.com}
+    smtp-host: ${SMTP_HOST:smtp.gmail.com}
+    smtp-port: ${SMTP_PORT:587}
+    smtp-username: ${SMTP_USERNAME:}
+    smtp-password: ${SMTP_PASSWORD:}
+  sms:
+    enabled: false
+    provider: ${SMS_PROVIDER:twilio}
+    api-key: ${SMS_API_KEY:}
+
+logging:
+  level:
+    com.bank.notificationservice: DEBUG

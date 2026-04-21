@@ -1,37 +1,48 @@
 ```
 # Java/Maven
-target/
 *.class
 *.jar
 *.war
 *.ear
-
-# Spring Boot
-*.log
-logs/
+*.zip
+target/
+!target/README.md
 
 # IDE
 .idea/
-.vscode/
 *.iml
-*.iws
 *.ipr
+*.iws
+.vscode/
+
+# Logs
+*.log
+logs/
 
 # Environment
 .env
 .env.local
 .env.*
 
+# Dependencies
+node_modules/
+lib/node_modules/
+
 # OS
 .DS_Store
 Thumbs.db
 
-# Test coverage
-coverage/
-htmlcov/
-*.coverage
-
 # Maven
-.mvn/
-mvn/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+target/
+
+# Database migration backups (if any)
+**/db/migration/*.backup
 ```
