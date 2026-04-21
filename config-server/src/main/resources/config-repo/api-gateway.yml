@@ -1,0 +1,123 @@
+# API Gateway Configuration
+
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: customer-service
+          uri: lb://customer-service
+          predicates:
+            - Path=/api/customers/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: customerServiceCB
+                fallbackUri: forward:/fallback/customers
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+            - AuthenticationFilter
+
+        - id: account-service
+          uri: lb://account-service
+          predicates:
+            - Path=/api/accounts/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: accountServiceCB
+                fallbackUri: forward:/fallback/accounts
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+            - AuthenticationFilter
+
+        - id: transaction-service
+          uri: lb://transaction-service
+          predicates:
+            - Path=/api/transactions/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: transactionServiceCB
+                fallbackUri: forward:/fallback/transactions
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
+            - AuthenticationFilter
+
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: authServiceCB
+                fallbackUri: forward:/fallback/auth
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
+
+        - id: notification-service
+          uri: lb://notification-service
+          predicates:
+            - Path=/api/notifications/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: notificationServiceCB
+                fallbackUri: forward:/fallback/notifications
+            - AuthenticationFilter
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${EUREKA_SERVER_HOST:localhost}:8761/eureka/
+    register-with-eureka: false
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+
+jwt:
+  secret: ${JWT_SECRET:mySecretKeyForJWTTokenGenerationMustBeLongEnoughAndSecure123456789}
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      customerServiceCB:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+      accountServiceCB:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+      transactionServiceCB:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+      authServiceCB:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+      notificationServiceCB:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    com.bank.apigateway: DEBUG
